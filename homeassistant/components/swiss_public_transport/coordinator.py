@@ -84,6 +84,13 @@ class SwissPublicTransportDataUpdateCoordinator(
             return departure_datetime - dt_util.as_local(dt_util.utcnow())
         return None
 
+    def has_not_yet_departed(self, c) -> bool:
+        """Return True if the departure time is in the future."""
+        remaining_time = self.remaining_time(c["departure"])
+        if remaining_time:
+            return remaining_time > timedelta(seconds=0)
+        return True
+
     async def _async_update_data(self) -> list[DataConnection]:
         return await self.fetch_connections(limit=CONNECTIONS_COUNT)
 
@@ -103,22 +110,26 @@ class SwissPublicTransportDataUpdateCoordinator(
                 "Unable to connect and retrieve data from transport.opendata.ch"
             )
             raise UpdateFailed from e
-        connections = self._opendata.connections
+        connections = [
+            c
+            for c in self._opendata.connections
+            if c is not None and self.has_not_yet_departed(c)
+        ][:limit]
+
         return [
             DataConnection(
-                departure=dt_util.parse_datetime(connections[i]["departure"]),
-                train_number=connections[i]["number"],
-                platform=connections[i]["platform"],
-                transfers=connections[i]["transfers"],
-                duration=calculate_duration_in_seconds(connections[i]["duration"]),
+                departure=dt_util.parse_datetime(c["departure"]),
+                train_number=c["number"],
+                platform=c["platform"],
+                transfers=c["transfers"],
+                duration=calculate_duration_in_seconds(c["duration"]),
                 start=self._opendata.from_name,
                 destination=self._opendata.to_name,
-                remaining_time=str(self.remaining_time(connections[i]["departure"])),
-                delay=connections[i]["delay"],
-                line=connections[i].get("line"),
+                remaining_time=str(self.remaining_time(c["departure"])),
+                delay=c["delay"],
+                line=c.get("line"),
             )
-            for i in range(limit)
-            if len(connections) > i and connections[i] is not None
+            for c in connections
         ]
 
     async def fetch_connections_as_json(self, limit: int) -> list[JsonValueType]:
