@@ -1,7 +1,6 @@
 """Test the swiss_public_transport service."""
 
 from datetime import datetime
-import json
 import logging
 from unittest.mock import AsyncMock, patch
 
@@ -28,7 +27,7 @@ from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 
 from . import setup_integration
 
-from tests.common import MockConfigEntry, load_fixture
+from tests.common import MockConfigEntry, load_json_value_fixture
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -75,9 +74,13 @@ async def test_service_call_fetch_connections_success(
             return_value=datetime.fromisoformat("2024-01-06T18:02:40+0100"),
         ),
     ):
-        mock().connections = json.loads(load_fixture("connections.json", DOMAIN))[
-            0 : data.get(ATTR_LIMIT, CONNECTIONS_COUNT) + 2
-        ]
+        mock().connections = dict(
+            enumerate(
+                load_json_value_fixture("connections.json", DOMAIN)[
+                    0 : data.get(ATTR_LIMIT, CONNECTIONS_COUNT) + 2
+                ]
+            )
+        )
 
         await setup_integration(hass, config_entry)
 
@@ -149,7 +152,9 @@ async def test_service_call_fetch_connections_error(
             return_value=datetime.fromisoformat("2024-01-06T18:03:40+0100"),
         ),
     ):
-        mock().connections = json.loads(load_fixture("connections.json", DOMAIN))
+        mock().connections = dict(
+            enumerate(load_json_value_fixture("connections.json", DOMAIN))
+        )
 
         await setup_integration(hass, config_entry)
 
@@ -195,7 +200,9 @@ async def test_service_call_load_unload(
             return_value=datetime.fromisoformat("2024-01-06T18:03:40+0100"),
         ),
     ):
-        mock().connections = json.loads(load_fixture("connections.json", DOMAIN))
+        mock().connections = dict(
+            enumerate(load_json_value_fixture("connections.json", DOMAIN))
+        )
 
         await setup_integration(hass, config_entry)
 
@@ -277,7 +284,9 @@ async def test_service_call_fetch_connections_mapping(
             return_value=datetime.fromisoformat("2024-01-06T18:03:40+0100"),
         ),
     ):
-        mock().connections = json.loads(load_fixture("connections.json", DOMAIN))
+        mock().connections = dict(
+            enumerate(load_json_value_fixture("connections.json", DOMAIN))
+        )
 
         await setup_integration(hass, config_entry)
 

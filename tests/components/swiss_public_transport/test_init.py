@@ -42,8 +42,8 @@ MOCK_DATA_STEP_TIME_OFFSET = {
     CONF_TIME_STATION: "arrival",
 }
 
-CONNECTIONS = [
-    {
+CONNECTIONS = {
+    0: {
         "departure": "2024-01-06T18:03:00+0100",
         "number": 0,
         "platform": 0,
@@ -52,7 +52,7 @@ CONNECTIONS = [
         "delay": 0,
         "line": "T10",
     },
-    {
+    1: {
         "departure": "2024-01-06T18:04:00+0100",
         "number": 1,
         "platform": 1,
@@ -61,7 +61,7 @@ CONNECTIONS = [
         "delay": 0,
         "line": "T10",
     },
-    {
+    2: {
         "departure": "2024-01-06T18:05:00+0100",
         "number": 2,
         "platform": 2,
@@ -70,7 +70,7 @@ CONNECTIONS = [
         "delay": 0,
         "line": "T10",
     },
-]
+}
 
 
 @pytest.mark.parametrize(

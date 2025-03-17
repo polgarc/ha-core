@@ -112,7 +112,7 @@ class SwissPublicTransportDataUpdateCoordinator(
             raise UpdateFailed from e
         connections = [
             c
-            for c in self._opendata.connections
+            for c in self._opendata.connections.values()
             if c is not None and self.has_not_yet_departed(c)
         ][:limit]
 
